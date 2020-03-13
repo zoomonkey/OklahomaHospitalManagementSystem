@@ -1,0 +1,144 @@
+﻿@model OKHMS.Models.HospitalModel
+@using System.Web.Helpers;
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<link href="https://code.jquery.com/ui/1.12.0-rc.2/themes/smoothness/jquery-ui.css" rel="stylesheet" />
+
+<h1><p><a href="/Home/Index">Oklahoma Hospital Main</a></p></h1>
+<br />
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Hospital ID</th>
+            <th>Name</th>
+            <th>City</th>
+            <th>Action</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in @Model.Hospitals)
+        {
+            <tr>
+                <th scope="row">@item.Id</th>
+                <td>@item.Name</td>
+                <td>@item.City</td>
+                <td><a data-value="@item.Id" href="javascript:void(0)" class="btnEdit">Edit</a></td>
+                <td><a data-value="@item.Id" href="javascript:void(0)" class="btnDelete">Delete</a></td>
+            </tr>
+        }
+        <p><a href="javascript:void(0)" class="btn btn-primary btn-lg btnInsert">Add a Hospital</a></p>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="5">
+                <ul class="pagination pull-right">
+                    @for (int pagenum = 1; pagenum <= @Model.PagerCount; pagenum++)
+                    {
+                        <li class="paginate_button"><a href="@Url.Action("manage", "home", new { pageNumber = @pagenum })" aria-controls="example" data-dt-idx="2" tabindex="0">@pagenum</a></li>
+                    }
+                </ul>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+
+<div class="clearfix"></div>
+
+<div id="dialogEdit" title="edit view" style="overflow: hidden;"></div>
+<div id="dialogDelete" title="edit view" style="overflow: hidden;"></div>
+<div id="dialogInsert" title="edit view" style="overflow: hidden;"></div>
+
+@section Scripts{
+    <script src="https://code.jquery.com/ui/1.12.0-rc.2/jquery-ui.min.js"></script>
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var id = 0;
+            $(document).on('click', '.btnEdit', function () {
+                id = $(this).attr("data-value");
+                $('#dialogEdit').dialog('open');
+            });
+
+            $('#dialogEdit').dialog({
+                autoOpen: false,
+                width: 400,
+                resizable: false,
+                title: 'Edit Hospital details',
+                modal: true,
+                open: function (event, ui) {
+                    // Load partial view _GridEditPartial
+                    $(this).load("@Url.Action("GetHospitalById")", { id: id });
+                },
+                buttons: {
+                    "Close": function () {
+                        $(this).dialog("close");
+                        window.location.reload();
+                    }
+                }
+            });
+        });
+
+        $(function () {
+            var id = 0;
+            $(document).on('click', '.btnDelete', function () {
+                id = $(this).attr("data-value");
+                $('#dialogDelete').dialog('open');
+            });
+
+            $('#dialogDelete').dialog({
+                autoOpen: false,
+                width: 400,
+                resizable: false,
+                title: 'Delete Hospital',
+                modal: true,
+                open: function (event, ui) {
+                    // Load partial view _GridEditPartial
+                    var r = confirm("Are you sure you want to delete?");
+                    if (r == true) {
+                        $(this).load("@Url.Action("DeleteHospital")", { id: id });
+                        window.location.reload();
+                    }
+                    else {
+                        $(this).dialog("close");
+                    }
+                },
+                buttons: {
+                    "Close": function () {
+                        $(this).dialog("close");
+                        window.location.reload();
+                    }
+                }
+            });
+        });
+
+        $(function () {
+            var id = 0;
+            $(document).on('click', '.btnInsert', function () {
+                id = $(this).attr("data-value");
+                $('#dialogInsert').dialog('open');
+            });
+
+            $('#dialogInsert').dialog({
+                autoOpen: false,
+                width: 400,
+                resizable: false,
+                title: 'Insert Hospital',
+                modal: true,
+                open: function (event, ui) {
+                    $(this).load("@Url.Action("InsertHospitalView")", { id: id });
+                },
+                buttons: {
+                    "Close": function () {
+                        $(this).dialog("close");
+                        window.location.reload();
+                    }
+                }
+            });
+        });
+
+    </script>
+}
